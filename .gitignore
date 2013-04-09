@@ -1,0 +1,7 @@
+*.pyc
+venv
+.env
+.DS_Store
+.coverage
+htmlcov
+

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block body %}
+    <div class="container">
+      <div>
+        <h1>
+          Enable SMS based Two Factor Auth
+        </h1>
+      </div>
+      {% if 'sms_sent' in opts and opts['sms_sent'] %}
+      <div class="alert alert-success">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+	An SMS has been sent to the phone number you entered.
+	When you get the SMS,
+	enter the code in the SMS where it says "Enter your verification code" below.
+      </div>
+      {% elif 'sms_sent' in opts %}
+      <div class="alert alert-error">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+	There was an error sending you a SMS.
+	Please check that you entered your mobile phone number
+	correctly and try again.
+      </div>
+      {% endif %}
+      {% if opts['token_error'] %}
+      <div class="alert alert-error">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+	There was an error verifying your token. Please try again.
+      </div>
+      {% endif %}
+      {% if opts['user'].account['totp_enabled_via_sms'] %}
+      <div class="alert alert-success">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+	You are set up for Two Factor Authentication via Twilio SMS!
+      </div>
+      {% else %}
+      <div>
+        Enabling SMS based Two Factor Authentication on your account is a two
+        step process:
+        <ol>
+          <li>
+            Enter your mobile phone number below and press the "Submit" button:
+          </li>
+          <li>
+            A 6-digit verification code will be sent to your mobile phone. When you
+            receive that number, enter it below:
+          </li>
+        </ol>
+      </div>
+      <form method="POST">
+        <formset>
+          <label>Your mobile phone number:</label>
+          <input type="text" name="phone_number" placeholder="(415) 555-1212"/>
+          <button type="submit" class="btn">Send verification code</button>
+	  <a href="/user" class="btn">Cancel</a>
+          <label>Enter your verification code:</label>
+          <input type="text" name="token" placeholder="123456" />
+          <button type="submit" class="btn">Submit and verify</button>
+	  <a href="/user" class="btn">Cancel</a>
+        </formset>
+        </form>
+      {% endif %}
+    </div>
+{% endblock %}

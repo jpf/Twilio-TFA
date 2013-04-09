@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block body %}
+    <div class="container">
+      <div class="well">
+        <div>
+          <h1>
+            Account Verification
+          </h1>
+          {% if opts['error-no-username'] %}
+          <div class="alert alert-error">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            Unable to determine your username. Are cookies enabled in
+	    your browser?
+          </div>
+          {% endif %}
+          {% if opts['error-unverified-password'] %}
+          <div class="alert alert-error">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            Unable to determine if you've entered your password correctly.
+	    Are cookies enabled in your browser?
+          </div>
+          {% endif %}
+          {% if opts['error-invalid-token'] %}
+          <div class="alert alert-error">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            There was an error verifying your token. Please try again.
+          </div>
+          {% endif %}
+	  <p>Please enter your verification code from:<p>
+	  <ul>
+	    {% if opts['user'].account['totp_enabled_via_sms'] %}
+	    <li>The SMS that was just sent to you</li>
+	    {% endif %}
+	    {% if opts['user'].account['totp_enabled_via_app'] %}
+	    <li>Google Authenticator</li>
+	    {% endif %}
+	  </ul>
+        </div>
+	<form method="POST">
+	  <fieldset>
+             <label>Enter your verification code here:</label>
+             <input type="text" name="token" placeholder="123456"/>
+             <br/>
+             <button type="submit" class="btn">Submit</button>
+          </fieldset>
+	</form>
+      <div>
+        <p>
+          {% if opts['user'].account['totp_enabled_via_sms'] %}
+          <a href="/verify-tfa">
+            Send me an SMS with my verification code again.
+          </a>
+	  {% endif %}
+        </p>
+      </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block body %}
+    <div class="container">
+      <div>
+        <h1>
+          Create an account
+        </h1>
+        <p>
+          Remember, this is just for demonstration purposes. Don't use a password
+          here that you use anywhere else.
+        </p>
+      </div>
+      {% if opts['username_exists'] %}
+      <div class="alert alert-error">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+	That username is already in use.
+      </div>
+      {% endif %}
+      {% if opts['passwords_do_not_match'] %}
+      <div class="alert alert-error">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+	Passwords do not match.
+      </div>
+      {% endif %}
+      <form method="POST">
+        <fieldset>
+          <label>Username</label>
+          <input type="text" name="username">
+          <label>Password</label>
+          <input type="password" name="password1">
+          <label>Password again</label>
+          <input type="password" name="password2">
+          <br/>
+          <button type="submit" class="btn">Create Account</button>
+        </fieldset>
+      </form>
+    </div>
+{% endblock %}

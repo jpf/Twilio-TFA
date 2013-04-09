@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block body %}
+    <div class="container">
+      <div class="row">
+        <div class="span6">
+	  <div>
+	  This is a demonstration of how to add TOTP based Two Factor Authentication to an existing application.
+	  </div>
+	  <!-- Source: -->
+	  <!-- http://openclipart.org/detail/34273/tango-system-lock-screen-by-warszawianka -->
+          <img src="/static/img/locked-screen.png" />
+        </div>
+        <div class="span6">
+          {% if opts['invalid_username_or_password'] %}
+          <div class="alert alert-error">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            Incorrect Username or Password.
+          </div>
+          {% endif %}
+          <form method="POST">
+            <fieldset>
+              <label>Username</label>
+              <input type="text" name="username">
+              <label>Password</label>
+              <input type="password" name="password">
+              <br/>
+              <button type="submit" class="btn">Log in</button>
+            </fieldset>
+          </form>
+          <div class="well">
+            <div>
+              <h1>
+                Don't have an account?
+              </h1>
+            </div>
+            <a class="btn" href="/sign-up">
+              Sign up for an account here
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}

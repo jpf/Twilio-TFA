@@ -1,0 +1,10 @@
+The following libraries are also used in this project:
+
+pyotp:
+    https://github.com/nathforge/pyotp
+
+python-qrcode:
+    https://github.com/lincolnloop/python-qrcode
+
+Bootstrap:
+    http://twitter.github.io/bootstrap/

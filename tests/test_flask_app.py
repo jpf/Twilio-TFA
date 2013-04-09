@@ -100,7 +100,7 @@ class TestFlaskApp(unittest.TestCase):
         self.assertIn("Sign up", rv.data)
         # has text explaining example
         text = ("This is a demonstration of how "
-                "to add TOTP based Two Factor Authentication "
+                "to add TOTP based Two-Factor Authentication "
                 "to an existing application.")
         self.assertIn(text, rv.data)
         # has link to GitHub repo
@@ -166,7 +166,7 @@ class TestFlaskApp(unittest.TestCase):
         rv = self.login('user', 'password')
         self.assertIn("You are logged in", rv.data)
 
-        # Page has "Enable Two Factor Authentication" if TFA isn't enabled
+        # Page has "Enable Two-Factor Authentication" if TFA isn't enabled
         self.assertIn("Enable app based authentication", rv.data)
         # Page has "Enable SMS Authentication" if SMS auth isn't enabled
         self.assertIn("Enable SMS based authentication", rv.data)
@@ -215,7 +215,7 @@ class TestFlaskApp(unittest.TestCase):
     #     # SMS: no
     #     rv = self.login('user.tfa_no.sms_no', 'password')
     #     self.assertIn("You are logged in", rv.data)
-    #     self.assertIn("Enable Two Factor Authentication", rv.data)
+    #     self.assertIn("Enable Two-Factor Authentication", rv.data)
     #     self.assertIn("Enable SMS Authentication", rv.data)
     #     self.logout()
     #
@@ -223,7 +223,7 @@ class TestFlaskApp(unittest.TestCase):
     #     # SMS: yes
     #     rv = self.login('user.tfa_no.sms_yes', 'password')
     #     self.assertIn("You are logged in", rv.data)
-    #     self.assertIn("Enable Two Factor Authentication", rv.data)
+    #     self.assertIn("Enable Two-Factor Authentication", rv.data)
     #     self.assertIn("Disable SMS Authentication", rv.data)
     #     self.logout()
     #
@@ -231,7 +231,7 @@ class TestFlaskApp(unittest.TestCase):
     #     # SMS: no
     #     rv = self.login('user.tfa_yes.sms_no', 'password')
     #     self.assertIn("You are logged in", rv.data)
-    #     self.assertIn("Disable Two Factor Authentication", rv.data)
+    #     self.assertIn("Disable Two-Factor Authentication", rv.data)
     #     self.assertIn("Enable SMS Authentication", rv.data)
     #     self.logout()
     #
@@ -239,7 +239,7 @@ class TestFlaskApp(unittest.TestCase):
     #     # SMS: yes
     #     rv = self.login('user.tfa_yes.sms_yes', 'password')
     #     self.assertIn("You are logged in", rv.data)
-    #     self.assertIn("Disable Two Factor Authentication", rv.data)
+    #     self.assertIn("Disable Two-Factor Authentication", rv.data)
     #     self.assertIn("Disable SMS Authentication", rv.data)
     #     self.logout()
 

@@ -3,7 +3,7 @@
     <div class="container">
       <div>
         <h1>
-          Enable SMS based Two Factor Auth
+          Enable SMS based Two-Factor Auth
         </h1>
       </div>
       {% if 'sms_sent' in opts and opts['sms_sent'] %}
@@ -30,11 +30,11 @@
       {% if opts['user'].account['totp_enabled_via_sms'] %}
       <div class="alert alert-success">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
-	You are set up for Two Factor Authentication via Twilio SMS!
+	You are set up for Two-Factor Authentication via Twilio SMS!
       </div>
       {% else %}
       <div>
-        Enabling SMS based Two Factor Authentication on your account is a two
+        Enabling SMS based Two-Factor Authentication on your account is a two
         step process:
         <ol>
           <li>

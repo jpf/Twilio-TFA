@@ -1,17 +1,13 @@
 import os
-import StringIO
-import urlparse
 
 import bcrypt
 from twilio.rest import TwilioRestClient
 from flask.ext.login import LoginManager
 from flask import Flask
-from flask import Response
 from flask import request
 from flask import redirect
 from flask import url_for
 from flask import render_template
-from flask import session
 from flask.ext.login import login_user
 from flask.ext.login import logout_user
 from flask.ext.login import current_user
@@ -19,7 +15,6 @@ from flask.ext.login import login_required
 from pymongo import Connection
 
 from konfig import Konfig
-from totp_auth import TotpAuth
 
 app = Flask(__name__)
 konf = Konfig()
@@ -43,13 +38,9 @@ class User:
         self.id = user_id.lower()
         self.db = connection.tfa.users
         self.account = self.db.find_one({'uid': self.id})
-        if self.account and 'totp_secret' in self.account:
-            self.totp = TotpAuth(self.account['totp_secret'])
 
     def create(self):
-        auth = TotpAuth()
-        self.db.insert({'uid': self.id,
-                        'totp_secret': auth.secret})
+        self.db.insert({'uid': self.id})
         self.account = self.db.find_one({'uid': self.id})
 
     def save(self):
@@ -58,23 +49,6 @@ class User:
     def password_valid(self, pwd):
         pwd_hash = self.account['password_hash']
         return bcrypt.hashpw(pwd, pwd_hash) == pwd_hash
-
-    def send_sms(self, ok_to_send=False):
-        if 'totp_enabled_via_sms' in self.account:
-            ok_to_send = True
-        if ok_to_send:
-            token = self.totp.generate_token()
-            msg = "Use this code to log in: %s" % token
-            try:
-                phone_number = self.account['phone_number']
-                rv = twilio.sms.messages.create(to=phone_number,
-                                                from_=konf.twilio_from_number,
-                                                body=msg)
-            except:
-                return False
-            if rv:
-                return rv.status != 'failed'
-        return False
 
     # The methods below are required by flask-login
     def is_authenticated(self):
@@ -100,22 +74,12 @@ def main_page():
     if not user.account or not user.password_valid(request.form['password']):
         opts['invalid_username_or_password'] = True
         return render_template('main_page.html', opts=opts)
-    totp_enabled = False
-    for type in ['totp_enabled_via_app', 'totp_enabled_via_sms']:
-        if type in user.account:
-            totp_enabled = user.account[type]
-    if totp_enabled:
-        session['uid'] = user.get_id()
-        session['stage'] = 'password-validated'
-        return redirect(url_for('verify_tfa'))
-    else:
-        login_user(user)
-        return redirect(url_for('user'))
+    login_user(user)
+    return redirect(url_for('user'))
 
 
 @app.route("/sign-up", methods=['GET', 'POST'])
 def sign_up():
-    # FIXME: Test for the 'ideal case', render_template otherwise
     opts = {}
     if request.method == 'GET':
         return render_template('sign_up.html', opts=opts)
@@ -132,85 +96,6 @@ def sign_up():
     user.save()
     login_user(user)
     return redirect(url_for('user'))
-
-
-@app.route("/verify-tfa", methods=['GET', 'POST'])
-def verify_tfa():
-    user = User(session['uid'])
-    opts = {'user': user}
-    if request.method == 'GET':
-        opts['sms_sent'] = user.send_sms()
-        return render_template('verify_tfa.html', opts=opts)
-    if not session['uid']:
-        opts['error-no-username'] = True
-        return render_template('verify_tfa.html', opts=opts)
-    if session['stage'] != 'password-validated':
-        opts['error-unverified-password'] = True
-        return render_template('verify_tfa.html', opts=opts)
-    if user.totp.valid(request.form['token']):
-        login_user(user)
-        session['stage'] = 'logged-in'
-        return redirect(url_for('user'))
-    else:
-        opts['error-invalid-token'] = True
-        return render_template('verify_tfa.html', opts=opts)
-
-
-@app.route("/enable-tfa-via-app", methods=['GET', 'POST'])
-@login_required
-def enable_tfa_via_app():
-    opts = {'user': current_user}
-    if request.method == 'GET':
-        return render_template('enable_tfa_via_app.html', opts=opts)
-    token = request.form['token']
-    if token and current_user.totp.valid(token):
-        current_user.account['totp_enabled_via_app'] = True
-        current_user.save()
-        return render_template('enable_tfa_via_app.html', opts=opts)
-    else:
-        opts['token_error'] = True
-        return render_template('enable_tfa_via_app.html', opts=opts)
-
-
-@app.route('/auth-qr-code.png')
-@login_required
-def auth_qr_code():
-    """generate a QR code with the users TOTP secret
-
-    We do this to reduce the risk of leaking
-    the secret over the wire in plaintext"""
-    #FIXME: This logic should really apply site-wide
-    domain = urlparse.urlparse(request.url).netloc
-    if not domain:
-        domain = 'example.com'
-    username = "%s@%s" % (current_user.id, domain)
-    qrcode = current_user.totp.qrcode(username)
-    stream = StringIO.StringIO()
-    qrcode.save(stream)
-    image = stream.getvalue()
-    return Response(image, mimetype='image/png')
-
-
-@app.route("/enable-tfa-via-sms", methods=['GET', 'POST'])
-@login_required
-def enable_tfa_via_sms():
-    opts = {'user': current_user}
-    if request.method == 'GET':
-        return render_template('enable_tfa_via_sms.html', opts=opts)
-    if 'phone_number' in request.form and request.form['phone_number']:
-        current_user.account['phone_number'] = request.form['phone_number']
-        current_user.save()
-        opts['sms_sent'] = current_user.send_sms(ok_to_send=True)
-        opts['phone_number_updated'] = True
-        return render_template('enable_tfa_via_sms.html', opts=opts)
-    token = request.form['token']
-    if token and current_user.totp.valid(token):
-        current_user.account['totp_enabled_via_sms'] = True
-        current_user.save()
-        return render_template('enable_tfa_via_sms.html', opts=opts)
-    else:
-        opts['token_error'] = True
-        return render_template('enable_tfa_via_sms.html', opts=opts)
 
 
 @app.route("/user")

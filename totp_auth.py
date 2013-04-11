@@ -1,3 +1,5 @@
+import datetime
+
 import pyotp
 import qrcode
 
@@ -13,8 +15,13 @@ class TotpAuth:
         return self.totp.now()
 
     def valid(self, token):
+        token = int(token)
+        now = datetime.datetime.now()
+        time30secsago = now + datetime.timedelta(seconds=-30)
         try:
-            return self.totp.verify(int(token))
+            valid_now = self.totp.verify(token)
+            valid_past = self.totp.verify(token, for_time=time30secsago)
+            return valid_now or valid_past
         except:
             return False
 

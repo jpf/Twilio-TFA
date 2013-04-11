@@ -1,12 +1,13 @@
 import sys
 import StringIO
-
+import datetime
 if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
-#from mock import MagicMock
+
 import Image
+
 from totp_auth import TotpAuth
 
 
@@ -42,3 +43,32 @@ class TestTOTPAuth(unittest.TestCase):
         actual = actual_stream.getvalue()
 
         self.assertEqual(expected, actual)
+
+    # def test_validates_known_token(self):
+    #     """
+    #     Validates a token from a known, fixed, time.
+    #     """
+    #     known_time = 872835282
+    #     expected_token = 139539
+    #     pass
+
+    def test_validates_token_for_right_now(self):
+        auth = TotpAuth(self.test_token)
+        token = auth.totp.now()
+        self.assertTrue(auth.valid(token))
+
+    def test_validates_token_for_30_seconds_ago(self):
+        auth = TotpAuth(self.test_token)
+        now = datetime.datetime.now()
+        past_unixtime = int(now.strftime('%s')) - 30
+        past = datetime.datetime.fromtimestamp(past_unixtime)
+        token = auth.totp.at(past)
+        self.assertTrue(auth.valid(token))
+
+    def test_invalidates_token_for_60_seconds_ago(self):
+        auth = TotpAuth(self.test_token)
+        now = datetime.datetime.now()
+        past_unixtime = int(now.strftime('%s')) - 60
+        past = datetime.datetime.fromtimestamp(past_unixtime)
+        token = auth.totp.at(past)
+        self.assertFalse(auth.valid(token))

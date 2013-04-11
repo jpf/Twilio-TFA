@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import datetime
 import time
+import sys
 
 
 class OTP(object):
@@ -63,7 +64,22 @@ class TOTP(OTP):
         """
         return self.generate_otp(self.timecode(datetime.datetime.now()))
 
+    def at(self, date):
+        """
+        Generate the current time OTP
+        @return [Integer] the OTP as an integer
+        """
+        return self.generate_otp(self.timecode(date))
+
 if __name__ == "__main__":
     secret = "AAAAAAAAAAAAAAAA"
+    unixtime = 0
+    if len(sys.argv) > 1:
+        unixtime = int(sys.argv[1])
+    if unixtime > 1:
+        date = datetime.datetime.fromtimestamp(unixtime)
+    else:
+        date = datetime.datetime.now()
     totp = TOTP(secret)
-    print "TOTP token for secret '%s' is: %s" % (secret, totp.now())
+    print "TOTP token for secret '%s' at '%s' is: %s" % (
+        secret, date, totp.at(date))

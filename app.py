@@ -101,9 +101,9 @@ def main_page():
         opts['invalid_username_or_password'] = True
         return render_template('main_page.html', opts=opts)
     totp_enabled = False
-    for type in ['totp_enabled_via_app', 'totp_enabled_via_sms']:
-        if type in user.account:
-            totp_enabled = user.account[type]
+    for totp_type in ['totp_enabled_via_app', 'totp_enabled_via_sms']:
+        if totp_type in user.account:
+            totp_enabled = user.account[totp_type]
     if totp_enabled:
         session['uid'] = user.get_id()
         session['stage'] = 'password-validated'

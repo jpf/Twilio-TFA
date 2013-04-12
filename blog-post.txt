@@ -231,9 +231,9 @@ def main_page():
        opts['invalid_username_or_password'] = True
        return render_template('main_page.html', opts=opts)
     totp_enabled = False
-    for type in ['totp_enabled_via_app', 'totp_enabled_via_sms']:
-       if type in user.account:
-           totp_enabled = user.account[type]
+    for totp_type in ['totp_enabled_via_app', 'totp_enabled_via_sms']:
+       if totp_type in user.account:
+           totp_enabled = user.account[totp_type]
     if totp_enabled:
        session['uid'] = user.get_id()
        session['stage'] = 'password-validated'
@@ -265,9 +265,9 @@ Here is where we add our modifications. We start by checking to see if the user 
 
 [code language="python"]
     totp_enabled = False
-    for type in ['totp_enabled_via_app', 'totp_enabled_via_sms']:
-       if type in user.account:
-           totp_enabled = user.account[type]
+    for totp_type in ['totp_enabled_via_app', 'totp_enabled_via_sms']:
+       if totp_type in user.account:
+           totp_enabled = user.account[totp_type]
 [/code]
 
 If either two-factor authentication method is enabled, the "totp_enabled" variable will be True.
@@ -363,7 +363,9 @@ Otherwise, if the token wasn't valid, ask the user to enter their token again.
 <h3>Adding Google Authenticator</h3>
 Now that we have code to add TOTP authentication to the login process, let's take a look at how we'll get our users to enable TOTP authentication on their account.
 
-We'll start with how to add Google Authenticator.
+Keep in mind that you don't have to use Google Authenticator for this to work. TOTP is an IETF standard and has many different <a href="http://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm#Client_Implementations">client implementations</a>. 
+
+I'm using Google Authenticator in this example because it seems to be the most widely used TOTP client at this time. Let's get started.
 
 Here is the basic overview of how this part works:
 <ul>

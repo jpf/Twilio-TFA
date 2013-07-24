@@ -16,3 +16,5 @@ To install in Heroku, do the above, but then run:
     $ heroku create
     $ heroku config:set <run for every line in .env>
     $ heroku open
+
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/19586f0a1672bae0394f696672645aec "githalytics.com")](http://githalytics.com/jpf/Twilio-TFA)
